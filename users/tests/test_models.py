@@ -16,5 +16,16 @@ class UserModelTestCase(APITestCase):
     def test_can_befriend_another_user(self):
         user1 = User.objects.create(username='test1', password='test@123')
         user2 = User.objects.create(username='test2', password='test@123')
+
         user1.add_friend(user2)
         self.assertIn(user2, user1.friends.all())
+
+    def test_can_remove_friend(self):
+        user1 = User.objects.create(username='test1', password='test@123')
+        user2 = User.objects.create(username='test2', password='test@123')
+
+        user1.add_friend(user2)
+        self.assertIn(user2, user1.friends.all())
+
+        user1.remove_friend(user2)
+        self.assertEqual(user1.friends.count(), 0)

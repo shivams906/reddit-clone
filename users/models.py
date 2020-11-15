@@ -8,3 +8,7 @@ class User(AbstractUser):
     def add_friend(self, user=None):
         self.friends.add(user)
         return self
+
+    def remove_friend(self, user=None):
+        self.friends.remove(user)
+        return self
