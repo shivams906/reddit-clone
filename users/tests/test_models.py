@@ -9,6 +9,10 @@ class UserModelTestCase(APITestCase):
         User.objects.create(username='test', password='test@123')
         self.assertTrue(User.objects.count(), 1)
 
+    def test_string_representaion(self):
+        user = User.objects.create(username='test', password='test@123')
+        self.assertEqual(str(user), 'test')
+
     def test_can_befriend_another_user(self):
         user1 = User.objects.create(username='test1', password='test@123')
         user2 = User.objects.create(username='test2', password='test@123')
