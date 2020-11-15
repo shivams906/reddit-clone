@@ -3,4 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    friends = models.ManyToManyField('self')
+
+    def add_friend(self, user=None):
+        self.friends.add(user)
+        return self
