@@ -4,6 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     friends = models.ManyToManyField('self')
+    karma = models.IntegerField(default=0)
 
     def add_friend(self, user=None):
         self.friends.add(user)
