@@ -1,3 +1,4 @@
+import uuid
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient, APITestCase
 
@@ -29,3 +30,7 @@ class UserModelTestCase(APITestCase):
 
         user1.remove_friend(user2)
         self.assertEqual(user1.friends.count(), 0)
+
+    def test_uuid_is_saved_as_id(self):
+        user = User.objects.create(username='test1', password='test@123')
+        self.assertIsInstance(user.id, uuid.UUID)
