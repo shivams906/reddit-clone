@@ -17,3 +17,12 @@ class SubredditSerailizerTestCase(APITestCase):
         self.assertEqual(Subreddit.objects.count(), 1)
         subreddit = Subreddit.objects.first()
         self.assertEqual(subreddit.members.count(), 0)
+
+    def test_save_method_saves_admin_correctly(self):
+        user = User.objects.create(username='test', password='test@123')
+        serializer = SubredditSerializer(
+            data={'name': 'test', 'description': 'sub for testing'})
+        if serializer.is_valid():
+            serializer.save(admin=user)
+        subreddit = Subreddit.objects.first()
+        self.assertEqual(subreddit.admin, user)
