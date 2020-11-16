@@ -10,3 +10,13 @@ class Subreddit(models.Model):
     admin = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+    members = models.ManyToManyField(User, related_name='subscriptions')
+
+    def __str__(self):
+        return self.name
+
+    def add_member(self, user=None):
+        self.members.add(user)
+
+    def remove_member(self, user=None):
+        self.members.remove(user)
