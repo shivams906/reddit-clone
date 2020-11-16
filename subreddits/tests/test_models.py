@@ -1,3 +1,4 @@
+import uuid
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from subreddits.models import Subreddit
@@ -36,3 +37,9 @@ class SubredditModelTestCase(APITestCase):
         subreddit = Subreddit.objects.create(
             name='test', description='sub for testing', admin=user)
         self.assertEqual(str(subreddit), 'test')
+
+    def test_uuid_is_saved_as_id(self):
+        user = User.objects.create(username='test1', password='test@123')
+        subreddit = Subreddit.objects.create(
+            name='test', description='sub for testing', admin=user)
+        self.assertIsInstance(subreddit.id, uuid.UUID)
