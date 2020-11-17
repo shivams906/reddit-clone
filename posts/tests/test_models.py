@@ -13,3 +13,11 @@ class PostModelTestCase(APITestCase):
             name='test', description='sub for testing', admin=user)
         Post.objects.create(title='a post', subreddit=subreddit, author=user)
         self.assertEqual(Post.objects.count(), 1)
+
+    def test_string_representation(self):
+        user = User.objects.create(username='test', password='test@123')
+        subreddit = Subreddit.objects.create(
+            name='test', description='sub for testing', admin=user)
+        post = Post.objects.create(
+            title='a post', subreddit=subreddit, author=user)
+        self.assertEqual(str(post), post.title)
