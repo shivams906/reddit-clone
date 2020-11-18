@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Post
 
 
-class PostSerializer(serializers.ModelSerializer):
+class PostCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('id', 'title', 'created_at',

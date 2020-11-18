@@ -2,7 +2,7 @@ from django.db.utils import IntegrityError
 from rest_framework.test import APITestCase
 from posts.factories import PostFactory
 from posts.models import Post
-from posts.serializers import PostSerializer, PostUpdateSerializer
+from posts.serializers import PostCreateSerializer, PostUpdateSerializer
 from subreddits.factories import SubredditFactory
 from users.factories import UserFactory
 
@@ -11,7 +11,7 @@ class PostSerializerTestCase(APITestCase):
     def test_author_can_not_be_edited_directly(self):
         user = UserFactory()
         subreddit = SubredditFactory()
-        serializer = PostSerializer(data={
+        serializer = PostCreateSerializer(data={
             'title': 'a post',
             'subreddit': subreddit.pk,
             'author': user.pk
@@ -23,7 +23,7 @@ class PostSerializerTestCase(APITestCase):
     def test_author_is_saved_with_save_method(self):
         user = UserFactory()
         subreddit = SubredditFactory()
-        serializer = PostSerializer(data={
+        serializer = PostCreateSerializer(data={
             'title': 'a post',
             'subreddit': subreddit.pk,
         })
