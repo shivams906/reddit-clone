@@ -1,4 +1,8 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK
+from rest_framework.views import APIView
 from .models import Subreddit
 from .permissions import IsOwnerOrReadOnly
 from .serializers import SubredditSerializer
@@ -18,3 +22,12 @@ class SubredditDetail(generics.RetrieveUpdateDestroyAPIView):
         permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     queryset = Subreddit.objects.all()
     serializer_class = SubredditSerializer
+
+
+class Subscribe(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        subreddit = get_object_or_404(Subreddit, pk=kwargs['pk'])
+        subreddit.add_member(request.user)
+        return Response(HTTP_200_OK)

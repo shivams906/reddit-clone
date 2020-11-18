@@ -3,7 +3,7 @@ from rest_framework.test import APIRequestFactory, APITestCase
 from subreddits.factories import SubredditFactory
 from subreddits.models import Subreddit
 from subreddits.serializers import SubredditSerializer
-from subreddits.views import SubredditList, SubredditDetail
+from subreddits.views import SubredditList, SubredditDetail, Subscribe
 from users.factories import UserFactory
 
 User = get_user_model()
@@ -146,3 +146,25 @@ class SubredditDetailTestCase(APITestCase):
         request.user = user
         response = SubredditDetail.as_view()(request, pk=subreddit.pk)
         self.assertEqual(response.status_code, 403)
+
+
+class SubscribeTestCase(APITestCase):
+    def test_authenticated_users_can_subscribe_to_a_subreddit(self):
+        subreddit = SubredditFactory()
+        request = APIRequestFactory().post('')
+        user = UserFactory()
+        request.user = user
+        response = Subscribe.as_view()(request, pk=subreddit.pk)
+        subreddit.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(user, subreddit.members.all())
+
+    def test_only_authenticated_users_can_subscribe(self):
+        subreddit = SubredditFactory()
+        request = APIRequestFactory().post('')
+        response = Subscribe.as_view()(request, pk=subreddit.pk)
+        subreddit.refresh_from_db()
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data['detail'], 'Authentication credentials were not provided.')
+        self.assertEqual(subreddit.members.count(), 0)
