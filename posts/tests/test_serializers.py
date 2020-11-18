@@ -11,11 +11,9 @@ class PostSerializerTestCase(APITestCase):
     def test_author_can_not_be_edited_directly(self):
         user = UserFactory()
         subreddit = SubredditFactory()
-        serializer = PostCreateSerializer(data={
-            'title': 'a post',
-            'subreddit': subreddit.pk,
-            'author': user.pk
-        })
+        serializer = PostCreateSerializer(
+            data={"title": "a post", "subreddit": subreddit.pk, "author": user.pk}
+        )
         if serializer.is_valid():
             with self.assertRaises(IntegrityError):
                 serializer.save()
@@ -23,10 +21,12 @@ class PostSerializerTestCase(APITestCase):
     def test_author_is_saved_with_save_method(self):
         user = UserFactory()
         subreddit = SubredditFactory()
-        serializer = PostCreateSerializer(data={
-            'title': 'a post',
-            'subreddit': subreddit.pk,
-        })
+        serializer = PostCreateSerializer(
+            data={
+                "title": "a post",
+                "subreddit": subreddit.pk,
+            }
+        )
         if serializer.is_valid():
             serializer.save(author=user)
         self.assertEqual(Post.objects.count(), 1)
@@ -34,7 +34,7 @@ class PostSerializerTestCase(APITestCase):
 
     def test_likes_can_not_be_edited_directly(self):
         post = PostFactory()
-        post_serializer = PostCreateSerializer(post, data={'likes': True})
+        post_serializer = PostCreateSerializer(post, data={"likes": True}, partial=True)
         if post_serializer.is_valid():
             post_serializer.save()
         post.refresh_from_db()
@@ -42,7 +42,7 @@ class PostSerializerTestCase(APITestCase):
 
     def test_ups_can_not_be_edited_directly(self):
         post = PostFactory()
-        post_serializer = PostCreateSerializer(post, data={'ups': 1})
+        post_serializer = PostCreateSerializer(post, data={"ups": 1}, partial=True)
         if post_serializer.is_valid():
             post_serializer.save()
         post.refresh_from_db()
@@ -50,7 +50,7 @@ class PostSerializerTestCase(APITestCase):
 
     def test_downs_can_not_be_edited_directly(self):
         post = PostFactory()
-        post_serializer = PostCreateSerializer(post, data={'downs': 1})
+        post_serializer = PostCreateSerializer(post, data={"downs": 1}, partial=True)
         if post_serializer.is_valid():
             post_serializer.save()
         post.refresh_from_db()
@@ -62,7 +62,8 @@ class PostUpdateSerializerTestCase(APITestCase):
         post = PostFactory()
         subreddit = SubredditFactory()
         post_serializer = PostUpdateSerializer(
-            post, data={'subreddit': subreddit.pk})
+            post, data={"subreddit": subreddit.pk}, partial=True
+        )
         if post_serializer.is_valid():
             post_serializer.save()
         post.refresh_from_db()
