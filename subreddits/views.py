@@ -31,3 +31,12 @@ class Subscribe(APIView):
         subreddit = get_object_or_404(Subreddit, pk=kwargs['pk'])
         subreddit.add_member(request.user)
         return Response(HTTP_200_OK)
+
+
+class Unsubscribe(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        subreddit = get_object_or_404(Subreddit, pk=kwargs['pk'])
+        subreddit.remove_member(request.user)
+        return Response()

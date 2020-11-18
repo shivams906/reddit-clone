@@ -3,7 +3,7 @@ from rest_framework.test import APIRequestFactory, APITestCase
 from subreddits.factories import SubredditFactory
 from subreddits.models import Subreddit
 from subreddits.serializers import SubredditSerializer
-from subreddits.views import SubredditList, SubredditDetail, Subscribe
+from subreddits.views import SubredditList, SubredditDetail, Subscribe, Unsubscribe
 from users.factories import UserFactory
 
 User = get_user_model()
@@ -168,3 +168,28 @@ class SubscribeTestCase(APITestCase):
         self.assertEqual(
             response.data['detail'], 'Authentication credentials were not provided.')
         self.assertEqual(subreddit.members.count(), 0)
+
+
+class UnsubscribeTestCase(APITestCase):
+    def test_authenticated_users_can_unsubscribe_from_a_subreddit(self):
+        subreddit = SubredditFactory()
+        user = UserFactory()
+        subreddit.add_member(user)
+        request = APIRequestFactory().post('')
+        request.user = user
+        response = Unsubscribe.as_view()(request, pk=subreddit.pk)
+        subreddit.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(subreddit.members.count(), 0)
+
+    def test_only_authenticated_users_can_unsubscribe(self):
+        subreddit = SubredditFactory()
+        user = UserFactory()
+        subreddit.add_member(user)
+        request = APIRequestFactory().post('')
+        response = Unsubscribe.as_view()(request, pk=subreddit.pk)
+        subreddit.refresh_from_db()
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data['detail'], 'Authentication credentials were not provided.')
+        self.assertEqual(subreddit.members.count(), 1)
