@@ -5,13 +5,15 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    posts = serializers.PrimaryKeyRelatedField(
+        allow_empty=False, many=True, read_only=True)
     subscriptions = serializers.PrimaryKeyRelatedField(
         allow_empty=False, many=True, read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'password',
-                  'karma', 'friends', 'subscriptions')
+                  'karma', 'posts', 'friends', 'subscriptions')
         read_only_fields = ('karma', 'friends', )
         extra_kwargs = {
             'password': {

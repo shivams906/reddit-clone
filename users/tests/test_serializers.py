@@ -16,6 +16,7 @@ class UserSerializerTestCase(APITestCase):
                          'id': str(user.id),
                          'username': user.username,
                          'karma': user.karma,
+                         'posts': list(user.posts.all()),
                          'friends': list(user.friends.all()),
                          'subscriptions': list(user.subscriptions.all())})
 
