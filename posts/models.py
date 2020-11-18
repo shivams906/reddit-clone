@@ -15,6 +15,31 @@ class Post(models.Model):
         Subreddit, on_delete=models.CASCADE, related_name='posts')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='posts')
+    likes = models.BooleanField(null=True)
+    ups = models.IntegerField(default=0)
+    downs = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
+
+    def upvote(self):
+        if self.likes == False:
+            self.downs -= 1
+        self.ups += 1
+        self.likes = True
+        self.save()
+
+    def downvote(self):
+        if self.likes == True:
+            self.ups -= 1
+        self.downs += 1
+        self.likes = False
+        self.save()
+
+    def unvote(self):
+        if self.likes == True:
+            self.ups -= 1
+        elif self.likes == False:
+            self.downs -= 1
+        self.likes = None
+        self.save()
