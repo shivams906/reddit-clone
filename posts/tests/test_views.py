@@ -2,7 +2,7 @@ from rest_framework.test import APIRequestFactory, APITestCase
 from posts.factories import PostFactory
 from posts.models import Post
 from posts.serializers import PostSerializer
-from posts.views import PostList
+from posts.views import PostList, PostDetail
 from subreddits.factories import SubredditFactory
 from users.factories import UserFactory
 
@@ -42,3 +42,13 @@ class PostListTestCase(APITestCase):
         self.assertIn(response.status_code, [401, 403])
         self.assertEqual(
             response.data['detail'], 'Authentication credentials were not provided.')
+
+
+class PostDetailTestCase(APITestCase):
+    def test_GET_returns_a_particular_post(self):
+        post = PostFactory()
+        post_serializer = PostSerializer(post)
+        request = APIRequestFactory().get('')
+        response = PostDetail.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, post_serializer.data)
