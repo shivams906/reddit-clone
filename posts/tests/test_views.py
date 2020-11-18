@@ -102,3 +102,27 @@ class PostDetailTestCase(APITestCase):
         request.user = second_user
         response = PostDetail.as_view()(request, pk=post.pk)
         self.assertEqual(response.status_code, 403)
+
+    def test_DELETE_works(self):
+        post = PostFactory()
+        request = APIRequestFactory().delete('')
+        request.user = post.author
+        response = PostDetail.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(Post.objects.count(), 0)
+
+    def test_only_authenticated_users_can_DELETE(self):
+        post = PostFactory()
+        request = APIRequestFactory().delete('')
+        response = PostDetail.as_view()(request, pk=post.pk)
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data['detail'], 'Authentication credentials were not provided.')
+
+    def test_only_author_can_DELETE_to_their_post(self):
+        post = PostFactory()
+        request = APIRequestFactory().delete('')
+        second_user = UserFactory()
+        request.user = second_user
+        response = PostDetail.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 403)
