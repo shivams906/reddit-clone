@@ -52,3 +52,53 @@ class PostDetailTestCase(APITestCase):
         response = PostDetail.as_view()(request, pk=post.pk)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, post_serializer.data)
+
+    def test_PATCH_works(self):
+        post = PostFactory(title='post')
+        request = APIRequestFactory().patch('', data={'title': 'changed post'})
+        request.user = post.author
+        response = PostDetail.as_view()(request, pk=post.pk)
+        post.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(post.title, 'changed post')
+
+    def test_PUT_works(self):
+        post = PostFactory(title='post')
+        request = APIRequestFactory().put('', data={'title': 'changed post'})
+        request.user = post.author
+        response = PostDetail.as_view()(request, pk=post.pk)
+        post.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(post.title, 'changed post')
+
+    def test_only_authenticated_users_can_PATCH(self):
+        post = PostFactory()
+        request = APIRequestFactory().patch('', data={'title': 'changed post'})
+        response = PostDetail.as_view()(request, pk=post.pk)
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data['detail'], 'Authentication credentials were not provided.')
+
+    def test_only_authenticated_users_can_PUT(self):
+        post = PostFactory()
+        request = APIRequestFactory().put('', data={'title': 'changed post'})
+        response = PostDetail.as_view()(request, pk=post.pk)
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data['detail'], 'Authentication credentials were not provided.')
+
+    def test_only_author_can_PATCH_to_their_post(self):
+        post = PostFactory()
+        request = APIRequestFactory().patch('', data={'title': 'changed post'})
+        second_user = UserFactory()
+        request.user = second_user
+        response = PostDetail.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 403)
+
+    def test_only_author_can_PUT_to_their_post(self):
+        post = PostFactory()
+        request = APIRequestFactory().put('', data={'title': 'changed post'})
+        second_user = UserFactory()
+        request.user = second_user
+        response = PostDetail.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 403)
