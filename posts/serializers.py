@@ -8,3 +8,11 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'created_at',
                   'modified_at', 'subreddit', 'author',)
         read_only_fields = ('author',)
+
+
+class PostUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ('id', 'title', 'created_at',
+                  'modified_at', 'subreddit', 'author',)
+        read_only_fields = ('author', 'subreddit')

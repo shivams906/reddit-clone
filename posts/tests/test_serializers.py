@@ -1,7 +1,8 @@
 from django.db.utils import IntegrityError
 from rest_framework.test import APITestCase
+from posts.factories import PostFactory
 from posts.models import Post
-from posts.serializers import PostSerializer
+from posts.serializers import PostSerializer, PostUpdateSerializer
 from subreddits.factories import SubredditFactory
 from users.factories import UserFactory
 
@@ -30,3 +31,15 @@ class PostSerializerTestCase(APITestCase):
             serializer.save(author=user)
         self.assertEqual(Post.objects.count(), 1)
         self.assertEqual(Post.objects.first().author, user)
+
+
+class PostUpdateSerializerTestCase(APITestCase):
+    def test_subreddit_field_can_not_be_updated(self):
+        post = PostFactory()
+        subreddit = SubredditFactory()
+        post_serializer = PostUpdateSerializer(
+            post, data={'subreddit': subreddit.pk})
+        if post_serializer.is_valid():
+            post_serializer.save()
+        post.refresh_from_db()
+        self.assertNotEqual(post.subreddit, subreddit.pk)
