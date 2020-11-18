@@ -32,6 +32,30 @@ class PostSerializerTestCase(APITestCase):
         self.assertEqual(Post.objects.count(), 1)
         self.assertEqual(Post.objects.first().author, user)
 
+    def test_likes_can_not_be_edited_directly(self):
+        post = PostFactory()
+        post_serializer = PostCreateSerializer(post, data={'likes': True})
+        if post_serializer.is_valid():
+            post_serializer.save()
+        post.refresh_from_db()
+        self.assertEqual(post.likes, None)
+
+    def test_ups_can_not_be_edited_directly(self):
+        post = PostFactory()
+        post_serializer = PostCreateSerializer(post, data={'ups': 1})
+        if post_serializer.is_valid():
+            post_serializer.save()
+        post.refresh_from_db()
+        self.assertEqual(post.ups, 0)
+
+    def test_downs_can_not_be_edited_directly(self):
+        post = PostFactory()
+        post_serializer = PostCreateSerializer(post, data={'downs': 1})
+        if post_serializer.is_valid():
+            post_serializer.save()
+        post.refresh_from_db()
+        self.assertEqual(post.downs, 0)
+
 
 class PostUpdateSerializerTestCase(APITestCase):
     def test_subreddit_field_can_not_be_updated(self):
