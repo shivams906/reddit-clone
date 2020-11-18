@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from subreddits.factories import SubredditFactory
-from subreddits.models import Subreddit
 from users.factories import UserFactory
 from users.serializers import UserSerializer
 
