@@ -1,17 +1,15 @@
-from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 from rest_framework.test import APITestCase
 from posts.models import Post
 from posts.serializers import PostSerializer
-from subreddits.models import Subreddit
-User = get_user_model()
+from subreddits.factories import SubredditFactory
+from users.factories import UserFactory
 
 
 class PostSerializerTestCase(APITestCase):
     def test_author_can_not_be_edited_directly(self):
-        user = User.objects.create(username='test', password='test@123')
-        subreddit = Subreddit.objects.create(
-            name='test', description='sub for testing', admin=user)
+        user = UserFactory()
+        subreddit = SubredditFactory()
         serializer = PostSerializer(data={
             'title': 'a post',
             'subreddit': subreddit.pk,
@@ -22,9 +20,8 @@ class PostSerializerTestCase(APITestCase):
                 serializer.save()
 
     def test_author_is_saved_with_save_method(self):
-        user = User.objects.create(username='test', password='test@123')
-        subreddit = Subreddit.objects.create(
-            name='test', description='sub for testing', admin=user)
+        user = UserFactory()
+        subreddit = SubredditFactory()
         serializer = PostSerializer(data={
             'title': 'a post',
             'subreddit': subreddit.pk,

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIRequestFactory, APITestCase
+from users.factories import UserFactory
 from users.serializers import UserSerializer
 from users.views import UserList, UserDetail
 
@@ -8,7 +9,7 @@ User = get_user_model()
 
 class UserListViewTestCase(APITestCase):
     def test_GET_returns_a_list_of_users(self):
-        user = User.objects.create(username='test', password='test@123')
+        user = UserFactory()
         serializer = UserSerializer(user)
         request = APIRequestFactory().get('')
         response = UserList.as_view()(request)
@@ -35,7 +36,7 @@ class UserListViewTestCase(APITestCase):
 
 class UserDetailViewTestCase(APITestCase):
     def test_GET_returns_a_particular_user(self):
-        user = User.objects.create(username='test', password='test@123')
+        user = UserFactory()
         serializer = UserSerializer(user)
         request = APIRequestFactory().get('')
         response = UserDetail.as_view()(request, pk=user.pk)
@@ -43,7 +44,7 @@ class UserDetailViewTestCase(APITestCase):
         self.assertEqual(serializer.data, response.data)
 
     def test_PUT_replaces_all_data(self):
-        user = User.objects.create(username='test', password='test@123')
+        user = UserFactory()
         request = APIRequestFactory().put(
             '', {'username': 'test1', 'password': 'test@321'})
         request.user = user
@@ -56,7 +57,7 @@ class UserDetailViewTestCase(APITestCase):
         self.assertEqual(serializer.data, response.data)
 
     def test_PATCH_replaces_some_data(self):
-        user = User.objects.create(username='test', password='test@123')
+        user = UserFactory()
         request = APIRequestFactory().patch(
             '', {'username': 'test1'})
         request.user = user
@@ -69,7 +70,7 @@ class UserDetailViewTestCase(APITestCase):
         self.assertEqual(serializer.data, response.data)
 
     def test_unauthenticated_users_can_not_PUT(self):
-        user = User.objects.create(username='test', password='test@123')
+        user = UserFactory()
         request = APIRequestFactory().put(
             '', {'username': 'test1', 'password': 'test@321'})
         response = UserDetail.as_view()(request, pk=user.pk)
@@ -78,7 +79,7 @@ class UserDetailViewTestCase(APITestCase):
             response.data['detail'], 'Authentication credentials were not provided.')
 
     def test_unauthenticated_users_can_not_PATCH(self):
-        user = User.objects.create(username='test', password='test@123')
+        user = UserFactory()
         request = APIRequestFactory().patch(
             '', {'username': 'test1'})
         response = UserDetail.as_view()(request, pk=user.pk)
@@ -87,7 +88,7 @@ class UserDetailViewTestCase(APITestCase):
             response.data['detail'], 'Authentication credentials were not provided.')
 
     def test_DELETE_deletes_the_user_object(self):
-        user = User.objects.create(username='test', password='test@123')
+        user = UserFactory()
         request = APIRequestFactory().delete('')
         request.user = user
         response = UserDetail.as_view()(request, pk=user.pk)
@@ -95,7 +96,7 @@ class UserDetailViewTestCase(APITestCase):
         self.assertEqual(User.objects.count(), 0)
 
     def test_unauthenticated_users_can_not_DELETE(self):
-        user = User.objects.create(username='test', password='test@123')
+        user = UserFactory()
         request = APIRequestFactory().delete('')
         response = UserDetail.as_view()(request, pk=user.pk)
         self.assertIn(response.status_code, [401, 403])
@@ -103,8 +104,8 @@ class UserDetailViewTestCase(APITestCase):
             response.data['detail'], 'Authentication credentials were not provided.')
 
     def test_user_can_PUT_to_own_data_only(self):
-        user = User.objects.create(username='test', password='test@123')
-        user2 = User.objects.create(username='test2', password='test@123')
+        user = UserFactory()
+        user2 = UserFactory()
         request = APIRequestFactory().put(
             '', {'username': 'testuser2', 'password': 'test@321'})
         request.user = user
@@ -112,8 +113,8 @@ class UserDetailViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_user_can_PATCH_to_own_data_only(self):
-        user = User.objects.create(username='test', password='test@123')
-        user2 = User.objects.create(username='test2', password='test@123')
+        user = UserFactory()
+        user2 = UserFactory()
         request = APIRequestFactory().patch(
             '', {'username': 'testuser2'})
         request.user = user
@@ -121,8 +122,8 @@ class UserDetailViewTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_user_can_DELETE_to_own_data_only(self):
-        user = User.objects.create(username='test', password='test@123')
-        user2 = User.objects.create(username='test2', password='test@123')
+        user = UserFactory()
+        user2 = UserFactory()
         request = APIRequestFactory().delete('')
         request.user = user
         response = UserDetail.as_view()(request, pk=user2.pk)
