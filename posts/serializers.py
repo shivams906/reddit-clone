@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Post
 
 
-class PostCreateSerializer(serializers.ModelSerializer):
+class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = (
@@ -13,9 +13,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
             "subreddit",
             "author",
         )  # 'likes', 'ups', 'downs',)
-        read_only_fields = ("author",)  # 'likes', 'ups', 'downs',)
-
-
-class PostUpdateSerializer(PostCreateSerializer):
-    class Meta(PostCreateSerializer.Meta):
-        read_only_fields = PostCreateSerializer.Meta.read_only_fields + ("subreddit",)
+        read_only_fields = (
+            "subreddit",
+            "author",
+        )  # 'likes', 'ups', 'downs',)

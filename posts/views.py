@@ -1,26 +1,38 @@
-# from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions
+from subreddits.models import Subreddit
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions, status
 
-# from rest_framework.response import Response
+from rest_framework.response import Response
+
 # from rest_framework.views import APIView
 from .models import Post
 from .permissions import IsAuthorOrReadOnly
-from .serializers import PostCreateSerializer, PostUpdateSerializer
+from .serializers import PostSerializer
 
 
 class PostList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     queryset = Post.objects.all()
-    serializer_class = PostCreateSerializer
+    serializer_class = PostSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer, **kwargs)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
+
+    def perform_create(self, serializer, **kwargs):
+        subreddit = get_object_or_404(Subreddit, pk=kwargs["subreddit_pk"])
+        serializer.save(author=self.request.user, subreddit=subreddit)
 
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     queryset = Post.objects.all()
-    serializer_class = PostUpdateSerializer
+    serializer_class = PostSerializer
 
 
 # class Upvote(APIView):
