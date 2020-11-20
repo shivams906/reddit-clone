@@ -12,34 +12,52 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     subreddit = models.ForeignKey(
-        Subreddit, on_delete=models.CASCADE, related_name='posts')
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='posts')
-    # likes = models.BooleanField(null=True)
-    # ups = models.IntegerField(default=0)
-    # downs = models.IntegerField(default=0)
+        Subreddit, on_delete=models.CASCADE, related_name="posts"
+    )
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    upvoted_by = models.ManyToManyField(User, related_name="upvoted_posts")
+    downvoted_by = models.ManyToManyField(User, related_name="downvoted_posts")
+    ups = models.IntegerField(default=0)
+    downs = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
 
-    # def upvote(self):
-    #     if self.likes == False:
-    #         self.downs -= 1
-    #     self.ups += 1
-    #     self.likes = True
-    #     self.save()
+    def likes(self, user=None):
+        if user is not None:
+            if user in self.upvoted_by.all():
+                return True
+            if user in self.downvoted_by.all():
+                return False
+        return None
 
-    # def downvote(self):
-    #     if self.likes == True:
-    #         self.ups -= 1
-    #     self.downs += 1
-    #     self.likes = False
-    #     self.save()
+    def upvote(self, user=None):
+        if user is not None:
+            if user not in self.upvoted_by.all():
+                if user in self.downvoted_by.all():
+                    self.downvoted_by.remove(user)
+                    self.downs -= 1
+                self.upvoted_by.add(user)
+                self.ups += 1
+                self.save()
 
-    # def unvote(self):
-    #     if self.likes == True:
-    #         self.ups -= 1
-    #     elif self.likes == False:
-    #         self.downs -= 1
-    #     self.likes = None
-    #     self.save()
+    def downvote(self, user=None):
+        if user is not None:
+            if user not in self.downvoted_by.all():
+                if user in self.upvoted_by.all():
+                    self.upvoted_by.remove(user)
+                    self.ups -= 1
+                self.downvoted_by.add(user)
+                self.downs += 1
+                self.save()
+
+    def unvote(self, user=None):
+        if user is not None:
+            if user in self.upvoted_by.all():
+                self.upvoted_by.remove(user)
+                self.ups -= 1
+                self.save()
+            if user in self.downvoted_by.all():
+                self.downvoted_by.remove(user)
+                self.downs -= 1
+                self.save()
