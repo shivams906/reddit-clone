@@ -1,10 +1,8 @@
-from subreddits.models import Subreddit
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
-
 from rest_framework.response import Response
-
-# from rest_framework.views import APIView
+from rest_framework.views import APIView
+from subreddits.models import Subreddit
 from .models import Post
 from .permissions import IsAuthorOrReadOnly
 from .serializers import PostSerializer
@@ -35,28 +33,31 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
 
 
-# class Upvote(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
+class Upvote(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-#     def post(self, request, *args, **kwargs):
-#         post = get_object_or_404(Post, pk=kwargs["pk"])
-#         post.upvote()
-#         return Response()
-
-
-# class Downvote(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def post(self, request, *args, **kwargs):
-#         post = get_object_or_404(Post, pk=kwargs["pk"])
-#         post.downvote()
-#         return Response()
+    def post(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=kwargs["pk"])
+        post.upvote(request.user)
+        post_serializer = PostSerializer(post, context={"request": request})
+        return Response(post_serializer.data)
 
 
-# class Unvote(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
+class Downvote(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-#     def post(self, request, *args, **kwargs):
-#         post = get_object_or_404(Post, pk=kwargs["pk"])
-#         post.unvote()
-#         return Response()
+    def post(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=kwargs["pk"])
+        post.downvote(request.user)
+        post_serializer = PostSerializer(post, context={"request": request})
+        return Response(post_serializer.data)
+
+
+class Unvote(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=kwargs["pk"])
+        post.unvote(request.user)
+        post_serializer = PostSerializer(post, context={"request": request})
+        return Response(post_serializer.data)

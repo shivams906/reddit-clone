@@ -2,7 +2,7 @@ from rest_framework.test import APIRequestFactory, APITestCase
 from posts.factories import PostFactory
 from posts.models import Post
 from posts.serializers import PostSerializer
-from posts.views import PostList, PostDetail  # , Upvote, Downvote, Unvote
+from posts.views import PostList, PostDetail, Upvote, Downvote, Unvote
 from subreddits.factories import SubredditFactory
 from users.factories import UserFactory
 
@@ -132,75 +132,77 @@ class PostDetailTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
 
-# class UpvoteTestCase(APITestCase):
-#     def test_POST_upvotes_the_post(self):
-#         user = UserFactory()
-#         post = PostFactory()
-#         request = APIRequestFactory().post("")
-#         request.user = user
-#         response = Upvote.as_view()(request, pk=post.pk)
-#         post.refresh_from_db()
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTrue(post.likes)
-#         self.assertEqual(post.ups, 1)
-#         self.assertEqual(post.downs, 0)
+class UpvoteTestCase(APITestCase):
+    def test_POST_upvotes_the_post(self):
+        user = UserFactory()
+        post = PostFactory()
+        request = APIRequestFactory().post("")
+        request.user = user
+        response = Upvote.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["likes"])
+        self.assertEqual(response.data["ups"], 1)
 
-#     def test_only_authenticated_users_can_upvote(self):
-#         post = PostFactory()
-#         request = APIRequestFactory().post("")
-#         response = Upvote.as_view()(request, pk=post.pk)
-#         post.refresh_from_db()
-#         self.assertIn(response.status_code, [401, 403])
-#         self.assertEqual(
-#             response.data["detail"], "Authentication credentials were not provided."
-#         )
+    def test_only_authenticated_users_can_upvote(self):
+        post = PostFactory()
+        request = APIRequestFactory().post("")
+        response = Upvote.as_view()(request, pk=post.pk)
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data["detail"], "Authentication credentials were not provided."
+        )
 
 
-# class DownvoteTestCase(APITestCase):
-#     def test_POST_downvotes_the_post(self):
-#         user = UserFactory()
-#         post = PostFactory()
-#         request = APIRequestFactory().post("")
-#         request.user = user
-#         response = Downvote.as_view()(request, pk=post.pk)
-#         post.refresh_from_db()
-#         self.assertEqual(response.status_code, 200)
-#         self.assertFalse(post.likes)
-#         self.assertEqual(post.ups, 0)
-#         self.assertEqual(post.downs, 1)
+class DownvoteTestCase(APITestCase):
+    def test_POST_downvotes_the_post(self):
+        user = UserFactory()
+        post = PostFactory()
+        request = APIRequestFactory().post("")
+        request.user = user
+        response = Downvote.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["likes"], False)
+        self.assertEqual(response.data["downs"], 1)
 
-#     def test_only_authenticated_users_can_downvote(self):
-#         post = PostFactory()
-#         request = APIRequestFactory().post("")
-#         response = Downvote.as_view()(request, pk=post.pk)
-#         post.refresh_from_db()
-#         self.assertIn(response.status_code, [401, 403])
-#         self.assertEqual(
-#             response.data["detail"], "Authentication credentials were not provided."
-#         )
+    def test_only_authenticated_users_can_downvote(self):
+        post = PostFactory()
+        request = APIRequestFactory().post("")
+        response = Downvote.as_view()(request, pk=post.pk)
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data["detail"], "Authentication credentials were not provided."
+        )
 
 
-# class UnvoteTestCase(APITestCase):
-#     def test_POST_unvotes_the_post(self):
-#         user = UserFactory()
-#         post = PostFactory()
-#         post.upvote()
-#         request = APIRequestFactory().post("")
-#         request.user = user
-#         response = Unvote.as_view()(request, pk=post.pk)
-#         post.refresh_from_db()
-#         self.assertEqual(response.status_code, 200)
-#         self.assertIsNone(post.likes)
-#         self.assertEqual(post.ups, 0)
-#         self.assertEqual(post.downs, 0)
+class UnvoteTestCase(APITestCase):
+    def test_POST_unvotes_the_post(self):
+        user = UserFactory()
+        post = PostFactory()
 
-#     def test_only_authenticated_users_can_unvote(self):
-#         post = PostFactory()
-#         post.upvote()
-#         request = APIRequestFactory().post("")
-#         response = Unvote.as_view()(request, pk=post.pk)
-#         post.refresh_from_db()
-#         self.assertIn(response.status_code, [401, 403])
-#         self.assertEqual(
-#             response.data["detail"], "Authentication credentials were not provided."
-#         )
+        post.upvote(user)
+        request = APIRequestFactory().post("")
+        request.user = user
+        response = Unvote.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.data["likes"])
+        self.assertEqual(response.data["ups"], 0)
+        self.assertEqual(response.data["downs"], 0)
+
+        post.refresh_from_db()
+        post.downvote(user)
+        request = APIRequestFactory().post("")
+        request.user = user
+        response = Unvote.as_view()(request, pk=post.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.data["likes"])
+        self.assertEqual(response.data["ups"], 0)
+        self.assertEqual(response.data["downs"], 0)
+
+    def test_only_authenticated_users_can_unvote(self):
+        post = PostFactory()
+        request = APIRequestFactory().post("")
+        response = Unvote.as_view()(request, pk=post.pk)
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data["detail"], "Authentication credentials were not provided."
+        )
