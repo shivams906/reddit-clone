@@ -2,7 +2,7 @@ from rest_framework.test import APIRequestFactory, APITestCase
 from posts.factories import PostFactory
 from posts.models import Post
 from posts.serializers import PostCreateSerializer
-from posts.views import PostList, PostDetail, Upvote
+from posts.views import PostList, PostDetail, Upvote, Downvote
 from subreddits.factories import SubredditFactory
 from users.factories import UserFactory
 
@@ -151,6 +151,30 @@ class UpvoteTestCase(APITestCase):
         post = PostFactory()
         request = APIRequestFactory().post("")
         response = Upvote.as_view()(request, pk=post.pk)
+        post.refresh_from_db()
+        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(
+            response.data["detail"], "Authentication credentials were not provided."
+        )
+
+
+class DownvoteTestCase(APITestCase):
+    def test_POST_downvotes_the_post(self):
+        user = UserFactory()
+        post = PostFactory()
+        request = APIRequestFactory().post("")
+        request.user = user
+        response = Downvote.as_view()(request, pk=post.pk)
+        post.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(post.likes)
+        self.assertEqual(post.ups, 0)
+        self.assertEqual(post.downs, 1)
+
+    def test_only_authenticated_users_can_downvote(self):
+        post = PostFactory()
+        request = APIRequestFactory().post("")
+        response = Downvote.as_view()(request, pk=post.pk)
         post.refresh_from_db()
         self.assertIn(response.status_code, [401, 403])
         self.assertEqual(

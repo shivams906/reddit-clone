@@ -29,3 +29,12 @@ class Upvote(APIView):
         post = get_object_or_404(Post, pk=kwargs["pk"])
         post.upvote()
         return Response()
+
+
+class Downvote(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=kwargs["pk"])
+        post.downvote()
+        return Response()
