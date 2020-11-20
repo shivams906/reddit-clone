@@ -1,5 +1,5 @@
 from django.db.utils import IntegrityError
-from rest_framework.test import APITestCase
+from rest_framework.test import APIRequestFactory, APITestCase
 from posts.factories import PostFactory
 from posts.models import Post
 from posts.serializers import PostSerializer
@@ -36,26 +36,28 @@ class PostSerializerTestCase(APITestCase):
         self.assertEqual(Post.objects.first().author, user)
         self.assertEqual(Post.objects.first().subreddit, subreddit)
 
-    # def test_likes_can_not_be_edited_directly(self):
-    #     post = PostFactory()
-    #     post_serializer = PostSerializer(post, data={"likes": True}, partial=True)
-    #     if post_serializer.is_valid():
-    #         post_serializer.save()
-    #     post.refresh_from_db()
-    #     self.assertEqual(post.likes, None)
+    def test_ups_can_not_be_edited_directly(self):
+        post = PostFactory()
+        post_serializer = PostSerializer(post, data={"ups": 1}, partial=True)
+        if post_serializer.is_valid():
+            post_serializer.save()
+        post.refresh_from_db()
+        self.assertEqual(post.ups, 0)
 
-    # def test_ups_can_not_be_edited_directly(self):
-    #     post = PostFactory()
-    #     post_serializer = PostSerializer(post, data={"ups": 1}, partial=True)
-    #     if post_serializer.is_valid():
-    #         post_serializer.save()
-    #     post.refresh_from_db()
-    #     self.assertEqual(post.ups, 0)
+    def test_downs_can_not_be_edited_directly(self):
+        post = PostFactory()
+        post_serializer = PostSerializer(post, data={"downs": 1}, partial=True)
+        if post_serializer.is_valid():
+            post_serializer.save()
+        post.refresh_from_db()
+        self.assertEqual(post.downs, 0)
 
-    # def test_downs_can_not_be_edited_directly(self):
-    #     post = PostFactory()
-    #     post_serializer = PostSerializer(post, data={"downs": 1}, partial=True)
-    #     if post_serializer.is_valid():
-    #         post_serializer.save()
-    #     post.refresh_from_db()
-    #     self.assertEqual(post.downs, 0)
+    def test_likes_is_serialized_correctly(self):
+        post = PostFactory()
+        user = UserFactory()
+        post.upvote(user)
+        request = APIRequestFactory().get("")
+        request.user = user
+        post_serializer = PostSerializer(post, context={"request": request})
+        self.assertIn("likes", post_serializer.data)
+        self.assertEqual(post.likes(user), post_serializer.data["likes"])

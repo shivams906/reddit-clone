@@ -3,6 +3,8 @@ from .models import Post
 
 
 class PostSerializer(serializers.ModelSerializer):
+    likes = serializers.SerializerMethodField()
+
     class Meta:
         model = Post
         fields = (
@@ -12,8 +14,17 @@ class PostSerializer(serializers.ModelSerializer):
             "modified_at",
             "subreddit",
             "author",
-        )  # 'likes', 'ups', 'downs',)
+            "likes",
+            "ups",
+            "downs",
+        )
         read_only_fields = (
             "subreddit",
             "author",
-        )  # 'likes', 'ups', 'downs',)
+            "ups",
+            "downs",
+        )
+
+    def get_likes(self, obj):
+        if "request" in self.context:
+            return obj.likes(self.context["request"].user)
