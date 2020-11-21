@@ -1,2 +1,47 @@
 # reddit-clone
+
 A very simple clone of Reddit
+
+## Setup
+
+To develop locally, do following steps:
+
+- Clone the repository and cd to it
+
+```
+git clone https://github.com/shivams906/reddit-clone.git
+cd reddit-clone
+```
+
+- Create a virtual environment and activate it
+
+```
+python -m venv venv
+source venv/bin/activate
+```
+
+- Install the requirements
+
+```
+pip install -r requirements.txt
+```
+
+- Set up the database
+
+```
+python manage.py migrate
+```
+
+- Run the server
+
+```
+python manage.py runserver
+```
+
+## Tests
+
+Run the following command
+
+```
+python manage.py test
+```
