@@ -43,5 +43,5 @@ python manage.py runserver
 Run the following command
 
 ```
-python manage.py test
+python manage.py test --settings config.settings_for_tests
 ```
