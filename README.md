@@ -45,3 +45,23 @@ Run the following command
 ```
 python manage.py test --settings config.settings_for_tests
 ```
+
+## Coverage
+
+Run
+
+```
+coverage run --source='.' manage.py test --settings config.settings_for_tests
+```
+
+- For report in terminal
+
+```
+coverage report
+```
+
+- For html report, run the following command and open the file htmlcov/index.html in your browser
+
+```
+coverage html
+```
