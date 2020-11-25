@@ -38,11 +38,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-## Tests & Coverage
-
-### Using django test runner
-
-#### Tests
+## Tests
 
 Run the following command
 
@@ -50,7 +46,7 @@ Run the following command
 python manage.py test --settings config.settings_for_tests
 ```
 
-#### Coverage
+## Coverage
 
 Run
 
@@ -69,13 +65,3 @@ coverage report
 ```
 coverage html
 ```
-
-### Using pytest
-
-Run the following command
-
-```
-pytest
-```
-
-It will also generate a coverage report and save it in the htmlcov folder like the above command. You can then open the file htmlcov/index.html in your browser.
