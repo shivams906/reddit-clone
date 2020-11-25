@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     # local apps
+    "comments",
     "posts",
     "subreddits",
     "users",
