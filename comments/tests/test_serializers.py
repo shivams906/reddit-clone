@@ -33,6 +33,6 @@ class CommentSerializerTestCase(APITestCase):
         comment_serializer = CommentSerializer(data={"text": "test comment"})
         if comment_serializer.is_valid():
             comment_serializer.save(author=user, post=post)
-            self.assertEqual(Comment.objects.count(), 1)
-            self.assertEqual(Comment.objects.first().author, user)
-            self.assertEqual(Comment.objects.first().post, post)
+        self.assertEqual(Comment.objects.count(), 1)
+        self.assertEqual(Comment.objects.first().author, user)
+        self.assertEqual(Comment.objects.first().post, post)
