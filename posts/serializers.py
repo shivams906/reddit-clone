@@ -17,12 +17,14 @@ class PostSerializer(serializers.ModelSerializer):
             "likes",
             "ups",
             "downs",
+            "comments",
         )
         read_only_fields = (
             "subreddit",
             "author",
             "ups",
             "downs",
+            "comments",
         )
 
     def get_likes(self, obj):

@@ -19,6 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
             "username",
             "password",
             "karma",
+            "comments",
             "posts",
             "friends",
             "subscriptions",
@@ -26,6 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "karma",
             "friends",
+            "comments",
         )
         extra_kwargs = {"password": {"write_only": True}}
 

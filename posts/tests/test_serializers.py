@@ -1,5 +1,6 @@
 from django.db.utils import IntegrityError
 from rest_framework.test import APIRequestFactory, APITestCase
+from comments.factories import CommentFactory
 from posts.factories import PostFactory
 from posts.models import Post
 from posts.serializers import PostSerializer
@@ -61,3 +62,14 @@ class PostSerializerTestCase(APITestCase):
         post_serializer = PostSerializer(post, context={"request": request})
         self.assertIn("likes", post_serializer.data)
         self.assertEqual(post.likes(user), post_serializer.data["likes"])
+
+    def test_comments_can_not_be_edited_directly(self):
+        post = PostFactory()
+        comment = CommentFactory()
+        post_serializer = PostSerializer(
+            post, data={"comments": [comment.pk]}, partial=True
+        )
+        if post_serializer.is_valid():
+            post_serializer.save()
+        post.refresh_from_db()
+        self.assertEqual(post.comments.count(), 0)
