@@ -1,7 +1,7 @@
 from rest_framework.test import APIRequestFactory, APITestCase
 from comments.factories import CommentFactory
 from comments.models import Comment
-from comments.serializers import CommentSerializer
+from comments.serializers import CommentCreateSerializer, CommentUpdateSerializer
 from comments.views import CommentList, CommentDetail
 from posts.factories import PostFactory
 from users.factories import UserFactory
@@ -10,9 +10,9 @@ from users.factories import UserFactory
 class CommentListTestCase(APITestCase):
     def test_GET_returns_list_of_comments(self):
         comment1 = CommentFactory()
-        comment_serializer1 = CommentSerializer(comment1)
+        comment_serializer1 = CommentCreateSerializer(comment1)
         comment2 = CommentFactory()
-        comment_serializer2 = CommentSerializer(comment2)
+        comment_serializer2 = CommentCreateSerializer(comment2)
         request = APIRequestFactory().get("")
         response = CommentList.as_view()(request)
         self.assertEqual(response.status_code, 200)
@@ -22,9 +22,11 @@ class CommentListTestCase(APITestCase):
     def test_POST_creates_a_comment(self):
         user = UserFactory()
         post = PostFactory()
-        request = APIRequestFactory().post("", data={"text": "test comment"})
+        request = APIRequestFactory().post(
+            "", data={"text": "test comment", "post": post.pk}
+        )
         request.user = user
-        response = CommentList.as_view()(request, post_pk=post.pk)
+        response = CommentList.as_view()(request)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Comment.objects.count(), 1)
         self.assertEqual(Comment.objects.first().text, "test comment")
@@ -42,7 +44,7 @@ class CommentListTestCase(APITestCase):
 class CommentDetailTestCase(APITestCase):
     def test_GET_returns_a_comment(self):
         comment = CommentFactory()
-        comment_serializer = CommentSerializer(comment)
+        comment_serializer = CommentUpdateSerializer(comment)
         request = APIRequestFactory().get("")
         response = CommentDetail.as_view()(request, pk=comment.pk)
         self.assertEqual(response.status_code, 200)
@@ -54,7 +56,7 @@ class CommentDetailTestCase(APITestCase):
         request.user = comment.author
         response = CommentDetail.as_view()(request, pk=comment.pk)
         comment.refresh_from_db()
-        comment_serializer = CommentSerializer(comment)
+        comment_serializer = CommentUpdateSerializer(comment)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.count(), 1)
         self.assertEqual(comment.text, "changed comment")
@@ -83,7 +85,7 @@ class CommentDetailTestCase(APITestCase):
         request.user = comment.author
         response = CommentDetail.as_view()(request, pk=comment.pk)
         comment.refresh_from_db()
-        comment_serializer = CommentSerializer(comment)
+        comment_serializer = CommentUpdateSerializer(comment)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Comment.objects.count(), 1)
         self.assertEqual(comment.text, "changed comment")
