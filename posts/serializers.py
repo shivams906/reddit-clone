@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Post
 
 
-class PostSerializer(serializers.ModelSerializer):
+class PostCreateSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
 
     class Meta:
@@ -20,7 +20,6 @@ class PostSerializer(serializers.ModelSerializer):
             "comments",
         )
         read_only_fields = (
-            "subreddit",
             "author",
             "ups",
             "downs",
@@ -30,3 +29,8 @@ class PostSerializer(serializers.ModelSerializer):
     def get_likes(self, obj):
         if "request" in self.context:
             return obj.likes(self.context["request"].user)
+
+
+class PostUpdateSerializer(PostCreateSerializer):
+    class Meta(PostCreateSerializer.Meta):
+        read_only_fields = PostCreateSerializer.Meta.read_only_fields + ("subreddit",)
