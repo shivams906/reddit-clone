@@ -18,6 +18,7 @@ from django.urls import path
 from django.urls.conf import include
 
 api_urls = [
+    path("comments/", include("comments.urls")),
     path("posts/", include("posts.urls")),
     path("subreddits/", include("subreddits.urls")),
     path("users/", include("users.urls")),
