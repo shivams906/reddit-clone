@@ -12,10 +12,12 @@ class PostCreateSerializerTestCase(APITestCase):
     def test_author_can_not_be_edited_directly(self):
         user = UserFactory()
         subreddit = SubredditFactory()
-        serializer = PostCreateSerializer(data={"title": "a post", "author": user.pk})
+        serializer = PostCreateSerializer(
+            data={"title": "a post", "author": user.pk, "subreddit": subreddit.pk}
+        )
         if serializer.is_valid():
             with self.assertRaises(IntegrityError):
-                serializer.save(subreddit=subreddit)
+                serializer.save()
 
     def test_author_is_saved_with_save_method(self):
         user = UserFactory()
